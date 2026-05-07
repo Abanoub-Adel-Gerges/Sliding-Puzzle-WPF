@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlidingPuzzle.WPF", "SlidingPuzzle.WPF\SlidingPuzzle.WPF.csproj", "{1206421D-442B-4E47-809A-69758F83F61E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlidingPuzzle.Lib", "SlidingPuzzle.Lib\SlidingPuzzle.Lib.csproj", "{3DFCB7D8-F28B-444E-9A74-BD2A449CA3BC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1206421D-442B-4E47-809A-69758F83F61E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1206421D-442B-4E47-809A-69758F83F61E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1206421D-442B-4E47-809A-69758F83F61E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1206421D-442B-4E47-809A-69758F83F61E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DFCB7D8-F28B-444E-9A74-BD2A449CA3BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DFCB7D8-F28B-444E-9A74-BD2A449CA3BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DFCB7D8-F28B-444E-9A74-BD2A449CA3BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DFCB7D8-F28B-444E-9A74-BD2A449CA3BC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FAD95052-4C77-4C62-BF92-31223E20F6C1}
+	EndGlobalSection
+EndGlobal
