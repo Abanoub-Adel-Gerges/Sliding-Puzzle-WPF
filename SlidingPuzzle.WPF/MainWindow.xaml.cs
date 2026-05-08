@@ -5,7 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Threading;
-using System.Threading.Tasks;
+using System.Text;
 using System.Diagnostics;
 
 namespace SlidingPuzzle.WPF
@@ -71,7 +71,21 @@ namespace SlidingPuzzle.WPF
             }
             return border;
         }
+        private async Task<PuzzleResult> ExecuteSearchAsync(string algoTag, CancellationToken token)
+        {
+            var solver = new SlidingPuzzleSolver();
+            var puzzleCopy = new Lib.Models.SlidingPuzzle(_currentPuzzle.GetGrid());
 
+            return await Task.Run(() =>
+            {
+                return algoTag switch
+                {
+                    "Greedy" => solver.GreedySearch(puzzleCopy, token),
+                    "UCS" => solver.UCS(puzzleCopy, token),
+                    _ => solver.ASearch(puzzleCopy, token)
+                };
+            }, token);
+        }
         private async void Solve_Click(object sender, RoutedEventArgs e)
         {
             if (_currentPuzzle == null) return;
@@ -84,8 +98,6 @@ namespace SlidingPuzzle.WPF
             var senderButton = ((Button)sender);
             senderButton.IsEnabled = false;
             TxtStats.Text = "Solving... Please wait.";
-            var solver = new SlidingPuzzleSolver();
-            var puzzleCopy = new Lib.Models.SlidingPuzzle(_currentPuzzle.GetGrid());
             string algoTag = (CboAlgorithm.SelectedItem as ComboBoxItem)?.Tag?.ToString() ?? "AStar";
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(maxSeconds));
 
@@ -94,15 +106,7 @@ namespace SlidingPuzzle.WPF
             Stopwatch sw = Stopwatch.StartNew();
             try
             {
-                dynamic result = await Task.Run(() =>
-                {
-                    return algoTag switch
-                    {
-                        "Greedy" => solver.GreedySearch(puzzleCopy, cts.Token),
-                        "UCS" => solver.UCS(puzzleCopy, cts.Token),
-                        _ => solver.ASearch(puzzleCopy, cts.Token)
-                    };
-                }, cts.Token);
+                var result = await ExecuteSearchAsync(algoTag, cts.Token);
                 _solutionPath = result.Path;
                 ListPath.ItemsSource = _solutionPath;
                 TxtStats.Text = $"Algorithm: {((ComboBoxItem)CboAlgorithm.SelectedItem).Content}\n" +
@@ -125,6 +129,41 @@ namespace SlidingPuzzle.WPF
             }
         }
 
+        private async void CompareAll_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPuzzle == null) return;
+            var btn = (Button)sender;
+            btn.IsEnabled = false;
+
+            var results = new StringBuilder();
+            results.AppendLine("COMPARISON DASHBOARD\n===============================");
+            int maxSeconds = int.Parse(TxtTimeout.Text);
+            //TxtStats.Text = results.ToString();
+
+            foreach (ComboBoxItem item in CboAlgorithm.Items)
+            {
+                string algoName = item.Content.ToString() ?? "";
+                string algoTag = item.Tag.ToString() ?? "AStar";
+                results.Append($"\n▶ {algoName.PadRight(15)} ");
+                TxtStats.Text = results.ToString() + "⌛";
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(maxSeconds));
+                Stopwatch sw = Stopwatch.StartNew();
+                long memBefore = GC.GetTotalMemory(true);
+                try
+                {
+                    var result = await ExecuteSearchAsync(algoTag, cts.Token);
+                    sw.Stop();
+                    double memMB = (GC.GetTotalMemory(false) - memBefore) / (1024 * 1024.0);
+
+                    results.AppendLine("\n  -----------------------------");
+                    results.AppendLine($"  Moves: {result.moves} | Time: {sw.ElapsedMilliseconds}ms");
+                    results.AppendLine($"  Nodes: {result.nodesExpanded} | Mem: {memMB:F2}MB");
+                }
+                catch { results.AppendLine("\n  [!] TIMEOUT or FAILED"); }
+                TxtStats.Text = results.ToString();
+            }
+            btn.IsEnabled = true;
+        }
         private void RefreshUI()
         {
             PuzzleGrid.Children.Clear();
